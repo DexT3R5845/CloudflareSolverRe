@@ -134,9 +134,15 @@ namespace CloudflareSolverRe
         /// <param name="response">The HttpResponseMessage to check.</param>
         public static async Task<DetectResult> Detect(HttpResponseMessage response)
         {
+            bool isContainsCloudFlare(string _html)
+            {
+                var onlyCharactersHtml = string.Join("", _html.ToLower().ToCharArray().Where(o => o >= 'a' && o <= 'z'));
+                return onlyCharactersHtml.Contains("stopbreaking");
+            }
+
             var html = await response.Content.ReadAsStringAsync();
 
-            if (response.StatusCode.Equals(HttpStatusCode.ServiceUnavailable) && html.Contains("var s,t,o,p,b,r,e,a,k,i,n,g"))
+            if (response.StatusCode.Equals(HttpStatusCode.ServiceUnavailable) && isContainsCloudFlare(html))
             {
                 return new DetectResult
                 {
